@@ -5,12 +5,12 @@ import pygame
 import geometry
 from geometry import Vector
 import random
-import time
 
 
 RESOURCES = 'resources'
 MUSIC_AMOUNT = 4
 END_MUSIC_EVENT = 42
+
 
 class StaticGameObject:
     """Обобщенный статический игровой объект.
@@ -60,7 +60,7 @@ class DynamicGameObject (StaticGameObject):
         self.speed_x = speed_x
         self.speed_y = speed_y
 
-    def set_speed(self, speed_x, speed_y):  
+    def set_speed(self, speed_x, speed_y):
         self.speed_x = speed_x
         self.speed_y = speed_y
 
@@ -557,6 +557,7 @@ class ArkanoidGame:
                     self.debug_obj = self.debug_obj[-25:]
                 for obj in self.debug_obj:
                     obj.refresh()
+                    obj.repaint()
 
             self.live_indicator.refresh()
             self.live_indicator.repaint()

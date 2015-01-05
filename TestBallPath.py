@@ -79,7 +79,7 @@ fig5 = [
 ]
 
 polygons = (fig1, fig2, fig3, fig4)
-polygons = (fig5,)
+# polygons = (fig5,)
 
 
 class TestingBall(arkanoid.Ball):
@@ -102,16 +102,15 @@ class TestBallPath:
             (self.WIDTH, self.HEIGHT)
         )
         speed = -20
-        #self.ball = TestingBall(600, 400, 7, speed, speed, self)
+        # self.ball = TestingBall(600, 400, 7, speed, speed, self)
         self.ball = TestingBall(
-            614.8704199262805, 232.3800416326503,
+            100, 100,
             7,
-            28.258470778887805, -1.2078200357437066,
+            4, 0,
             self
         )
         self.debug = False
         self.ball.show()
-
 
     def run(self):
         clock = pygame.time.Clock()
@@ -121,8 +120,8 @@ class TestBallPath:
             for polygon in polygons:
                 pygame.draw.polygon(self.screen, (255, 0, 0), polygon)
             self.ball.refresh()
-            self.f()
-            # print(self.ball.x, self.ball.y, self.ball.speed_x, self.ball.speed_y)
+            self.ball.repaint()
+            self.draw_speed_vector()
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -130,9 +129,9 @@ class TestBallPath:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     print(str(event.pos) + ',')
 
-            # clock.tick(60)
+            clock.tick(60)
 
-    def f(self):
+    def draw_speed_vector(self):
         x0 = self.ball.x + self.ball.radius
         y0 = self.ball.y + self.ball.radius
         x1 = x0 + self.ball.speed_x

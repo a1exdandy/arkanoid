@@ -110,4 +110,3 @@ def intersect_line_circle(line_point, path, center, radius):
     t_2 = (-b - math.sqrt(D)) / (2 * a)
 
     return line_point + path * t_1, line_point + path * t_2
-
