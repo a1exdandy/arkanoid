@@ -9,7 +9,8 @@ import time
 
 
 RESOURCES = 'resources'
-
+MUSIC_AMOUNT = 4
+END_MUSIC_EVENT = 42
 
 class StaticGameObject:
     """Обобщенный статический игровой объект.
@@ -369,13 +370,14 @@ class LiveIndicator(StaticGameObject):
             self.surface.blit(self.heart_image, (i * 25, 0))
 
 
-class LoseLabel(StaticGameObject):
+class Label(StaticGameObject):
 
-    def __init__(self, parent):
+    def __init__(self, name, parent):
         super().__init__(0, 0, parent.HEIGHT, parent.WIDTH, parent)
         image_number = random.randint(0, 5)
+        directory = RESOURCES + '/' + name + '/'
         image = pygame.image.load(
-            RESOURCES + '/lose/lose_' + str(image_number) + '.png'
+            directory + name + '_' + str(image_number) + '.png'
         )
         self.surface.blit(image, (0, 0))
         self.show()
@@ -384,6 +386,18 @@ class LoseLabel(StaticGameObject):
         if any(pygame.mouse.get_pressed()):
             pygame.mouse.set_pos((0, 0))
             self.parent.label = None
+
+
+class LoseLabel(Label):
+
+    def __init__(self, parent):
+        super().__init__('lose', parent)
+
+
+class WinLabel(Label):
+
+    def __init__(self, parent):
+        super().__init__('win', parent)
 
 
 class ArkanoidGame:
@@ -407,6 +421,12 @@ class ArkanoidGame:
         self.label = None
         self.live_indicator = LiveIndicator(self)
         self.live_indicator.show()
+
+        self.music_list = []
+        for i in range(MUSIC_AMOUNT):
+            music_name = RESOURCES + '/music/sound_' + str(i) + '.mp3'
+            self.music_list.append(music_name)
+        self.play_random_music()
 
         self.blocks = []
         self.stars = []
@@ -434,6 +454,11 @@ class ArkanoidGame:
             )
             obj.show()
             self.stars.append(obj)
+
+    def play_random_music(self):
+        pygame.mixer.music.load(random.choice(self.music_list))
+        pygame.mixer.music.play()
+        pygame.mixer.music.set_endevent(END_MUSIC_EVENT)
 
     def start_game(self):
 
@@ -491,7 +516,9 @@ class ArkanoidGame:
         self.game_menu.show()
 
     def win(self):
-        pass
+        self.label = WinLabel(self)
+        self.runnable = False
+        self.game_menu.show()
 
     def run(self):
         """Основной цикл игры, в котором происходит отрисовка всех элементов.
@@ -509,6 +536,11 @@ class ArkanoidGame:
                     obj.refresh()
                 self.panel.refresh()
                 self.ball.refresh()
+                for obj in self.blocks:
+                    if obj.lives == 0:
+                        self.blocks.remove(obj)
+                if not self.blocks:
+                    self.win()
 
             # Отрисовка объектов
             for obj in self.stars:
@@ -550,13 +582,16 @@ class ArkanoidGame:
                         self.runnable = False
                         self.pause = True
                         self.game_menu.show()
+                    elif event.key == pygame.K_x:
+                        if len(self.blocks) > 0:
+                            obj = random.choice(self.blocks)
+                            obj.hit()
                 elif event.type == pygame.KEYUP:
                     if event.key in (pygame.K_LEFT, pygame.K_RIGHT):
                         self.panel.speed_x = 0
+                elif event.type == END_MUSIC_EVENT:
+                    self.play_random_music()
 
-            for obj in self.blocks:
-                if obj.lives == 0:
-                    self.blocks.remove(obj)
             clock.tick(60)
 
     def debug_point(self, x, y):
